@@ -63,6 +63,12 @@ defmodule Emerald.AmazonProduct do
   # end
 
   def all do
-    Emerald.Repo.all from amazon_product in Emerald.AmazonProduct
+    query = from amazon_product in Emerald.AmazonProduct
+    Emerald.Repo.all(query)
+  end
+
+  def one_day_old do
+    query = from amazon_product in Emerald.AmazonProduct, where: amazon_product.scanned_at <= ago(1, "day"), select: amazon_product.asin
+    Emerald.Repo.all(query)
   end
 end

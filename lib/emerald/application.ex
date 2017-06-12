@@ -10,7 +10,9 @@ defmodule Emerald.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      supervisor(Emerald.Repo, [])
+      supervisor(Emerald.Repo, []),
+      # Workers
+      # worker(Emerald.Worker.ProductUpdater, [])
       # Starts a worker by calling: Emerald.Worker.start_link(arg1, arg2, arg3)
       # worker(Emerald.Worker, [arg1, arg2, arg3]),
     ]

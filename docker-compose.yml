@@ -6,4 +6,3 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
-    command: iex -S mix

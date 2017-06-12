@@ -15,7 +15,7 @@ defmodule Emerald.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :ecto, :postgrex],
+    [extra_applications: [:logger, :ecto, :postgrex, :httpotion],
      mod: {Emerald.Application, []}]
   end
 
@@ -29,7 +29,8 @@ defmodule Emerald.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:postgrex, "~> 0.13.3"},
-     {:ecto, "~> 2.1"}]
+    [{:postgrex, ">= 0.0.0"},
+     {:ecto, "~> 2.1"},
+     {:httpotion, "~> 3.0.2"}]
   end
 end
