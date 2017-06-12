@@ -57,18 +57,16 @@ defmodule Emerald.AmazonProduct do
     field :updated_at, :naive_datetime, null: false
   end
 
-  # def from_title(nil), do: { :error, :not_found }
-  # def from_title(title) do
-  #   Repo.one(AmazonProduct, title: title)
-  # end
-
   def all do
     query = from amazon_product in Emerald.AmazonProduct
     Emerald.Repo.all(query)
   end
 
   def one_day_old do
-    query = from amazon_product in Emerald.AmazonProduct, where: amazon_product.scanned_at <= ago(1, "day"), select: amazon_product.asin
-    Emerald.Repo.all(query)
+    query = from amazon_product in Emerald.AmazonProduct,
+      where: amazon_product.scanned_at <= ago(1, "day"),
+      select: amazon_product.asin,
+      limit: 1
+    List.first(Emerald.Repo.all(query))
   end
 end
