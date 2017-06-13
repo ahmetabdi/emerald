@@ -16,21 +16,9 @@ defmodule Emerald.Operator do
     }, default_params()] |> combine_params
 
     url = %URI{scheme: @scheme, host: @host, path: @path, query: query}
-    sign_url(url)
-  end
+    query = [%{ Signature: sign_url(url) }, query] |> combine_params
 
-  def url do
-    query = [default_params(), item_lookup("TEST")] |> combine_params
-
-    %URI{scheme: @scheme, host: @host, path: @path, query: query}
-    # HTTPotion.get("http://webservices.amazon.co.uk/onca/xml",
-    #   query: %{
-    #     Service: "AWSECommerceService",
-    #     AWSAccessKeyId: Application.get_env(:emerald, :AMAZON_ACCESS_KEY_ID),
-    #     AssociateTag: Application.get_env(:emerald, :AMAZON_AFFILIATE_ID),
-    #     Timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
-    #   }
-    # )
+    HTTPotion.get(@scheme <> "://" <> @host <> @path <> "?" <> URI.encode_query(query))
   end
 
   defp default_params do
@@ -48,7 +36,7 @@ defmodule Emerald.Operator do
         System.get_env("AMAZON_SECRET_KEY"),
         Enum.join(["GET", url_parts.host, url_parts.path, URI.encode_query(url_parts.query)], "\n")
       )
-    Base.encode64(hmac) #|> String.Chars.to_string
+    Base.encode64(hmac)
   end
 
   defp combine_params(params_list) do
@@ -76,7 +64,7 @@ defmodule Emerald.Operator do
       "Reviews",
       "SalesRank",
       "Similarities",
-      "S1mall",
+      "Small",
       "Tracks",
       "Variations",
       "VariationImages",
