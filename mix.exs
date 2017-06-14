@@ -31,6 +31,7 @@ defmodule Emerald.Mixfile do
   defp deps do
     [{:postgrex, ">= 0.0.0"},
      {:ecto, "~> 2.1"},
-     {:httpotion, "~> 3.0.2"}]
+     {:httpotion, "~> 3.0.2"},
+     {:sweet_xml, "~> 0.6.5"}]
   end
 end

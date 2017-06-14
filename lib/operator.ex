@@ -1,8 +1,4 @@
 defmodule Emerald.Operator do
-  @moduledoc """
-  Documentation for Emerald.
-  """
-
   @scheme "http"
   @host System.get_env("AMAZON_HOST")
   @path "/onca/xml"
@@ -18,7 +14,9 @@ defmodule Emerald.Operator do
     url = %URI{scheme: @scheme, host: @host, path: @path, query: query}
     query = [%{ Signature: sign_url(url) }, query] |> combine_params
 
-    HTTPotion.get(@scheme <> "://" <> @host <> @path <> "?" <> URI.encode_query(query))
+    doc = HTTPotion.get("#{@scheme}://#{@host}#{@path}?#{URI.encode_query(query)}").body
+
+    Emerald.Parsers.ItemLookup.parse(doc)
   end
 
   defp default_params do
