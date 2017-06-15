@@ -10,14 +10,21 @@ defmodule Emerald.Worker.ProductUpdater do
   end
 
   def handle_info(:work, state) do
-    # Do the desired work here
-    IO.puts "Hello"
+    asin = Emerald.AmazonProduct.one_day_old
+
+    IO.puts "handle_info/2: #{inspect(Emerald.Operator.item_lookup(asin))}"
     schedule_work() # Reschedule once more
     {:noreply, state}
   end
 
+  def terminate(reason, state) do
+    IO.puts "terminate/2: #{inspect(state)}"
+    :normal
+  end
+
   def init(state) do
     schedule_work() # Schedule work to be performed on start
+    IO.puts "init/1: #{inspect(state)}"
     {:ok, state}
   end
 end

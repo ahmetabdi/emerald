@@ -12,7 +12,7 @@ defmodule Emerald.Application do
     children = [
       supervisor(Emerald.Repo, []),
       # Workers
-      # worker(Emerald.Worker.ProductUpdater, [])
+      worker(Emerald.Worker.ProductUpdater, [])
       # Starts a worker by calling: Emerald.Worker.start_link(arg1, arg2, arg3)
       # worker(Emerald.Worker, [arg1, arg2, arg3]),
     ]

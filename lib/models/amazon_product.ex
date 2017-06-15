@@ -66,6 +66,7 @@ defmodule Emerald.AmazonProduct do
     query = from amazon_product in Emerald.AmazonProduct,
       where: amazon_product.scanned_at <= ago(1, "day"),
       select: amazon_product.asin,
+      order_by: fragment("RANDOM()"),
       limit: 1
     List.first(Emerald.Repo.all(query))
   end
