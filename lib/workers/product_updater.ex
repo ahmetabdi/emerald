@@ -6,7 +6,7 @@ defmodule Emerald.Worker.ProductUpdater do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1000) # 1 seconds
+    Process.send_after(self(), :work, 1) # 1 seconds
   end
 
   def handle_info(:work, state) do
@@ -17,7 +17,7 @@ defmodule Emerald.Worker.ProductUpdater do
     {:noreply, state}
   end
 
-  def terminate(reason, state) do
+  def terminate(_, state) do
     IO.puts "terminate/2: #{inspect(state)}"
     :normal
   end
