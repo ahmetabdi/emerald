@@ -16,7 +16,7 @@ defmodule Emerald.Operator do
 
     doc = HTTPotion.get("#{@scheme}://#{@host}#{@path}?#{URI.encode_query(query)}").body
 
-    Emerald.Parsers.ItemLookup.parse(doc)
+    Emerald.Parsers.ItemLookup.run(doc)
   end
 
   defp default_params do
