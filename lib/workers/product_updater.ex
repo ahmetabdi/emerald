@@ -12,7 +12,7 @@ defmodule Emerald.Worker.ProductUpdater do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1000) # 1 seconds
+    Process.send_after(self(), :work, 500) # 1 seconds
   end
 
   def handle_info(:work, state) do
