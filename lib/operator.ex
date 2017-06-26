@@ -1,37 +1,36 @@
 defmodule Emerald.Operator do
   @scheme "http"
-  @host System.get_env("AMAZON_HOST")
   @path "/onca/xml"
 
-  def item_lookup(asin) do
+  def item_lookup(asin, config) do
     query = [%{
       Operation: "ItemLookup",
       ItemId: asin,
       IdType: "ASIN",
       ResponseGroup: default_response_groups()
-    }, default_params()] |> combine_params
+    }, default_params(config.access_key, config.affiliate_id)] |> combine_params
 
-    url = %URI{scheme: @scheme, host: @host, path: @path, query: query}
-    query = [%{ Signature: sign_url(url) }, query] |> combine_params
+    url = %URI{scheme: @scheme, host: config.host, path: @path, query: query}
+    query = [%{ Signature: sign_url(url, config.secret_key) }, query] |> combine_params
 
-    doc = HTTPotion.get("#{@scheme}://#{@host}#{@path}?#{URI.encode_query(query)}").body
+    doc = HTTPotion.get("#{@scheme}://#{config.host}#{@path}?#{URI.encode_query(query)}").body
 
     Emerald.Parsers.ItemLookup.run(doc)
   end
 
-  defp default_params do
+  defp default_params(access_key, affiliate_id) do
     %{
       "Service": "AWSECommerceService",
-      "AWSAccessKeyId": System.get_env("AMAZON_ACCESS_KEY_ID"),
-      "AssociateTag": System.get_env("AMAZON_AFFILIATE_ID"),
+      "AWSAccessKeyId": access_key,
+      "AssociateTag": affiliate_id,
       "Timestamp": DateTime.utc_now() |> DateTime.to_iso8601()
     }
   end
 
-  defp sign_url(url_parts) do
+  defp sign_url(url_parts, secret_key) do
     hmac = :crypto.hmac(
         :sha256,
-        System.get_env("AMAZON_SECRET_KEY"),
+        secret_key,
         Enum.join(["GET", url_parts.host, url_parts.path, URI.encode_query(url_parts.query)], "\n")
       )
     Base.encode64(hmac)
