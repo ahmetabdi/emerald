@@ -1,6 +1,9 @@
 defmodule Emerald.AmazonProduct do
   use Ecto.Schema
+  import Ecto.Changeset
   import Ecto.Query
+  alias Emerald.Repo
+  alias Emerald.AmazonProduct
 
   @primary_key {:id, :id, autogenerate: true}
 
@@ -57,17 +60,42 @@ defmodule Emerald.AmazonProduct do
     field :updated_at, :naive_datetime, null: false
   end
 
+  @all_fields [:scanned_at]
+
+  def changeset(%AmazonProduct{} = amazon_product, attrs) do
+    amazon_product
+    |> cast(attrs, @all_fields)
+  end
+
+  def list_amazon_products do
+    Repo.all(AmazonProduct)
+  end
+
+  def touch(%AmazonProduct{} = amazon_product) do
+    amazon_product
+    |> changeset(%{scanned_at: Timex.now("Europe/London")})
+    |> Repo.update()
+  end
+
+  def get_amazon_product!(id), do: Repo.get!(AmazonProduct, id)
+
+  def find_by_asin(asin) do
+    case Repo.get_by(AmazonProduct, asin: asin) do
+      nil -> {:error, :not_found}
+      amazon_product -> {:ok, amazon_product}
+    end
+  end
+
   def all do
-    query = from amazon_product in Emerald.AmazonProduct
-    Emerald.Repo.all(query)
+    query = from amazon_product in AmazonProduct
+    Repo.all(query)
   end
 
   def one_day_old do
-    query = from amazon_product in Emerald.AmazonProduct,
+    query = from amazon_product in AmazonProduct,
       where: amazon_product.scanned_at <= ago(1, "day"),
-      select: amazon_product.asin,
       order_by: fragment("RANDOM()"),
       limit: 1
-    List.first(Emerald.Repo.all(query))
+    List.first(Repo.all(query))
   end
 end

@@ -6,8 +6,8 @@ defmodule Emerald.Worker.ProductUpdater do
   end
 
   def init(state) do
-    schedule_work() # Schedule work to be performed on start
-    IO.puts "init/1: #{inspect(state)}"
+    schedule_work()
+    # IO.puts "init/1: #{inspect(state)}"
     {:ok, state}
   end
 
@@ -31,12 +31,27 @@ end
 
 defmodule Emerald.Task.ProductImporter do
   def run(host, access_key, secret_key, affiliate_id) do
-    asin = Emerald.AmazonProduct.one_day_old
+    case Emerald.AmazonProduct.one_day_old do
+      nil -> IO.puts IO.ANSI.green() <> "None left!" <> IO.ANSI.reset()
+      amazon_product -> fetch(amazon_product, host, access_key, secret_key, affiliate_id)
+    end
+  end
+
+  def fetch(amazon_product, host, access_key, secret_key, affiliate_id) do
     config = %{host: System.get_env(host), access_key: System.get_env(access_key), secret_key: System.get_env(secret_key), affiliate_id: System.get_env(affiliate_id)}
-    IO.puts "========================#{asin}==================================="
-    case Emerald.Operator.item_lookup(asin, config) do
-      {:ok, item} -> IO.puts IO.ANSI.green() <> inspect(item) <> IO.ANSI.reset()
+    case Emerald.Operator.item_lookup(amazon_product.asin, config) do
+      {:ok, item} -> Emerald.Task.ProductHistoryCreator.run(
+        amazon_product,
+        Map.merge(item, %{amazon_product_id: amazon_product.id, created_at: Timex.now("Europe/London"), updated_at: Timex.now("Europe/London")})
+      )
       {:throttled, message} -> IO.puts IO.ANSI.red() <> "Throttled: #{message}" <> IO.ANSI.reset()
     end
+  end
+end
+
+defmodule Emerald.Task.ProductHistoryCreator do
+  def run(amazon_product, attrs) do
+    Emerald.AmazonProductHistory.create(attrs)
+    Emerald.AmazonProduct.touch(amazon_product)
   end
 end
